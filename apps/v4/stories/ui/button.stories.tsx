@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { Loader2, Mail } from "lucide-react"
+import { useState, useEffect } from "react"
 
 import { Button } from "@/registry/new-york-v4/ui/button"
 
@@ -17,7 +18,32 @@ export const Default: Story = {
 }
 
 export const Destructive: Story = {
-  render: () => <Button variant="destructive">Destructive</Button>,
+  render: () => {
+    const [label, setLabel] = useState("yay")
+    const [variant, setVariant] = useState<"default" | "destructive" | "outline" | "secondary" | "ghost" | "link">("destructive")
+    const [size, setSize] = useState<"default" | "xs" | "sm" | "lg" | "icon">("default")
+
+    // geneditor-listener-start
+    useEffect(() => {
+      const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+      if (!el) return
+      const handler = (e: Event) => {
+        const d = (e as CustomEvent).detail
+        if (d.label !== undefined) setLabel(d.label)
+        if (d.variant !== undefined) setVariant(d.variant)
+        if (d.size !== undefined) setSize(d.size)
+      }
+      el.addEventListener("animation:update", handler)
+      return () => el.removeEventListener("animation:update", handler)
+    }, [])
+    // geneditor-listener-end
+
+    return (
+      <Button data-config-id="Button-Comp-0" variant={variant} size={size}>
+        {label}
+      </Button>
+    )
+  },
 }
 
 export const Outline: Story = {
@@ -58,3 +84,6 @@ export const Loading: Story = {
     </Button>
   ),
 }
+
+
+
