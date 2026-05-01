@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useState, useEffect } from "react"
 import { ChevronDownIcon } from "lucide-react"
 import { Accordion as AccordionPrimitive } from "radix-ui"
 
@@ -30,14 +31,34 @@ function AccordionTrigger({
   children,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
+  const [triggerFontSize, setTriggerFontSize] = useState(14)
+  const [triggerPaddingY, setTriggerPaddingY] = useState(16)
+  const [triggerGap, setTriggerGap] = useState(16)
+
+  // geneditor-listener-start
+  useEffect(() => {
+    const el = document.querySelector('[data-config-id="AccordionTrigger-AccordionPrimitive.Trigger-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.triggerFontSize !== undefined) setTriggerFontSize(d.triggerFontSize)
+      if (d.triggerPaddingY !== undefined) setTriggerPaddingY(d.triggerPaddingY)
+      if (d.triggerGap !== undefined) setTriggerGap(d.triggerGap)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between rounded-md text-left font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
           className
         )}
+        style={{ fontSize: `${triggerFontSize}px`, paddingTop: `${triggerPaddingY}px`, paddingBottom: `${triggerPaddingY}px`, gap: `${triggerGap}px` }}
         {...props}
       >
         {children}
@@ -64,3 +85,5 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+
