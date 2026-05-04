@@ -7,9 +7,34 @@ import { Accordion as AccordionPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 function Accordion({
+  className,
+  style,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+  const [textColor, setTextColor] = React.useState("#ec4899")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Accordion-AccordionPrimitive.Root-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
+  return (
+    <AccordionPrimitive.Root
+      data-slot="accordion"
+      data-config-id="Accordion-AccordionPrimitive.Root-0"
+      className={cn(className)}
+      style={{ color: textColor, ...style }}
+      {...props}
+    />
+  )
 }
 
 function AccordionItem({
@@ -64,3 +89,5 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+
