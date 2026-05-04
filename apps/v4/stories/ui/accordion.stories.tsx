@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { useEffect, useState } from "react"
 
 import {
   Accordion,
@@ -18,29 +19,46 @@ type Story = StoryObj<typeof Accordion>
 
 export const Single: Story = {
   name: "Single (Default)",
-  render: () => (
-    <Accordion type="single" collapsible className="w-[400px]">
-      <AccordionItem value="item-1">
-        <AccordionTrigger>Is it accessible?</AccordionTrigger>
-        <AccordionContent>
-          Yes. It adheres to the WAI-ARIA design pattern for accordions.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-2">
-        <AccordionTrigger>Is it styled?</AccordionTrigger>
-        <AccordionContent>
-          Yes. It comes with default styles that match the other components'
-          aesthetic.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-3">
-        <AccordionTrigger>Is it animated?</AccordionTrigger>
-        <AccordionContent>
-          Yes. It's animated by default, but you can disable it if you prefer.
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  ),
+  render: () => {
+    const [itemOneTrigger, setItemOneTrigger] = useState("who am i?")
+    const [itemOneContent, setItemOneContent] = useState("im ayushtom")
+    const [itemTwoTrigger, setItemTwoTrigger] = useState("what i do")
+    const [itemTwoContent, setItemTwoContent] = useState("i make software")
+
+    // geneditor-listener-start
+    useEffect(() => {
+      const el = document.querySelector('[data-config-id="Accordion-AccordionPrimitive.Root-0"]')
+      if (!el) return
+      const handler = (e: Event) => {
+        const d = (e as CustomEvent).detail
+        if (d.itemOneTrigger !== undefined) setItemOneTrigger(d.itemOneTrigger)
+        if (d.itemOneContent !== undefined) setItemOneContent(d.itemOneContent)
+        if (d.itemTwoTrigger !== undefined) setItemTwoTrigger(d.itemTwoTrigger)
+        if (d.itemTwoContent !== undefined) setItemTwoContent(d.itemTwoContent)
+      }
+      el.addEventListener('animation:update', handler)
+      return () => el.removeEventListener('animation:update', handler)
+    }, [])
+    // geneditor-listener-end
+
+    return (
+      <Accordion
+        data-config-id="Accordion-AccordionPrimitive.Root-0"
+        type="single"
+        collapsible
+        className="w-[400px]"
+      >
+        <AccordionItem value="item-1">
+          <AccordionTrigger>{itemOneTrigger}</AccordionTrigger>
+          <AccordionContent>{itemOneContent}</AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>{itemTwoTrigger}</AccordionTrigger>
+          <AccordionContent>{itemTwoContent}</AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    )
+  },
 }
 
 export const Multiple: Story = {
@@ -127,3 +145,5 @@ export const Disabled: Story = {
     </Accordion>
   ),
 }
+
+
