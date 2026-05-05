@@ -1,15 +1,32 @@
 "use client"
 
 import * as React from "react"
+import { useState, useEffect } from "react"
 import { ChevronDownIcon } from "lucide-react"
 import { Accordion as AccordionPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
 function Accordion({
+  className,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+  const [textColor, setTextColor] = useState('#ec4899')
+
+  // geneditor-listener-start
+  useEffect(() => {
+    const el = document.querySelector('[data-config-id="Accordion-AccordionPrimitive.Root-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
+  return <AccordionPrimitive.Root data-slot="accordion" data-config-id="Accordion-AccordionPrimitive.Root-0" style={{ color: textColor }} className={cn(className)} {...props} />
 }
 
 function AccordionItem({
@@ -64,3 +81,5 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+
