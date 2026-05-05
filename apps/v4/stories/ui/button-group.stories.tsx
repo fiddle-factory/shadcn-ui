@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { Bold, Italic, Underline } from "lucide-react"
+import { Bold, Code, Italic, Underline } from "lucide-react"
 
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { ButtonGroup } from "@/registry/new-york-v4/ui/button-group"
@@ -45,6 +45,11 @@ export const WithIcons: Story = {
       <Button variant="outline" size="icon">
         <Underline />
       </Button>
+      <Button variant="outline" size="icon">
+        <Code />
+      </Button>
     </ButtonGroup>
   ),
 }
+
+
