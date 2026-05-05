@@ -6,10 +6,31 @@ import { Accordion as AccordionPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+const AccordionColorContext = React.createContext("#ec4899")
+
 function Accordion({
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+  const [textColor, setTextColor] = React.useState("#ec4899")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Accordion-AccordionPrimitive.Root-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
+  return (
+    <AccordionColorContext.Provider value={textColor}>
+      <AccordionPrimitive.Root data-slot="accordion" data-config-id="Accordion-AccordionPrimitive.Root-0" {...props} />
+    </AccordionColorContext.Provider>
+  )
 }
 
 function AccordionItem({
@@ -30,6 +51,7 @@ function AccordionTrigger({
   children,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
+  const textColor = React.useContext(AccordionColorContext)
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
@@ -38,6 +60,7 @@ function AccordionTrigger({
           "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
           className
         )}
+        style={{ color: textColor }}
         {...props}
       >
         {children}
@@ -52,10 +75,12 @@ function AccordionContent({
   children,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+  const textColor = React.useContext(AccordionColorContext)
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
       className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+      style={{ color: textColor }}
       {...props}
     >
       <div className={cn("pt-0 pb-4", className)}>{children}</div>
@@ -64,3 +89,6 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+
+
