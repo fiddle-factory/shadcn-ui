@@ -21,22 +21,21 @@ export const Single: Story = {
   render: () => (
     <Accordion type="single" collapsible className="w-[400px]">
       <AccordionItem value="item-1">
-        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+        <AccordionTrigger>What</AccordionTrigger>
         <AccordionContent>
-          Yes. It adheres to the WAI-ARIA design pattern for accordions.
+          This is what we do — a clear explanation of the product, service, or concept at hand.
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="item-2">
-        <AccordionTrigger>Is it styled?</AccordionTrigger>
+        <AccordionTrigger>Why</AccordionTrigger>
         <AccordionContent>
-          Yes. It comes with default styles that match the other components'
-          aesthetic.
+          This is why it matters — the purpose, motivation, and value behind the decision or feature.
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="item-3">
-        <AccordionTrigger>Is it animated?</AccordionTrigger>
+        <AccordionTrigger>How</AccordionTrigger>
         <AccordionContent>
-          Yes. It's animated by default, but you can disable it if you prefer.
+          This is how it works — a step-by-step breakdown of the process or implementation.
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -127,3 +126,4 @@ export const Disabled: Story = {
     </Accordion>
   ),
 }
+
