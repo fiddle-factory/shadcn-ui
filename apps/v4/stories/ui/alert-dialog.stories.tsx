@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 
 import {
@@ -45,11 +46,28 @@ export const Default: Story = {
   ),
 }
 
-export const Destructive: Story = {
-  render: () => (
+function DestructiveAlertDialogStory() {
+  const [buttonLabel, setButtonLabel] = useState("Delete Account")
+
+  // geneditor-listener-start
+  useEffect(() => {
+    const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.buttonLabel !== undefined) setButtonLabel(d.buttonLabel)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
+  return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Delete Project</Button>
+        <Button data-config-id="Button-Comp-0" variant="destructive">
+          {buttonLabel}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -67,5 +85,11 @@ export const Destructive: Story = {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  ),
+  )
 }
+
+export const Destructive: Story = {
+  render: () => <DestructiveAlertDialogStory />,
+}
+
+
