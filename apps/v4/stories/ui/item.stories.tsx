@@ -27,14 +27,7 @@ type Story = StoryObj<typeof Item>
 export const Default: Story = {
   render: () => (
     <div className="w-[420px]">
-      <Item>
-        <ItemContent>
-          <ItemTitle>Default Item</ItemTitle>
-          <ItemDescription>
-            A simple item with a title and description.
-          </ItemDescription>
-        </ItemContent>
-      </Item>
+      yay
     </div>
   ),
 }
@@ -192,3 +185,4 @@ export const ImageMedia: Story = {
     </div>
   ),
 }
+
