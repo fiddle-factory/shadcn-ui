@@ -5,6 +5,7 @@ import { IconCheck, IconCopy } from "@tabler/icons-react"
 import template from "lodash/template"
 
 import { THEMES } from "@/lib/themes"
+import { formatCssColor, withAppThemeVars } from "@/lib/theme-vars"
 import { cn } from "@/lib/utils"
 import { useThemeConfig } from "@/components/active-theme"
 import { copyToClipboardWithMeta } from "@/components/copy-button"
@@ -171,8 +172,32 @@ function CustomizerCode({ themeName }: { themeName: string }) {
     [themeName]
   )
   const activeThemeOKLCH = React.useMemo(
-    () => baseColorsOKLCH[themeName as keyof typeof baseColorsOKLCH],
+    () =>
+      withAppThemeVars(
+        baseColorsOKLCH[themeName as keyof typeof baseColorsOKLCH] ?? {
+          light: {},
+          dark: {},
+        }
+      ),
     [themeName]
+  )
+  const activeThemeHSL = React.useMemo(
+    () =>
+      activeTheme
+        ? withAppThemeVars(activeTheme.cssVars, {
+            destructiveForeground: {
+              light: {
+                "destructive-foreground":
+                  activeTheme.cssVars.light["destructive-foreground"],
+              },
+              dark: {
+                "destructive-foreground":
+                  activeTheme.cssVars.dark["destructive-foreground"],
+              },
+            },
+          })
+        : undefined,
+    [activeTheme]
   )
 
   React.useEffect(() => {
@@ -319,7 +344,7 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line text-code-foreground">
                   &nbsp;&nbsp;&nbsp;--radius: 0.65rem;
                 </span>
-                {Object.entries(activeTheme?.cssVars.light || {}).map(
+                {Object.entries(activeThemeHSL?.light || {}).map(
                   ([key, value]) => (
                     <span
                       data-line
@@ -327,7 +352,7 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                       key={key}
                     >
                       &nbsp;&nbsp;&nbsp;--{key}:{" "}
-                      <ColorIndicator color={`hsl(${value})`} /> hsl({value});
+                      <ColorIndicator color={formatCssColor(value)} /> {value};
                     </span>
                   )
                 )}
@@ -340,7 +365,7 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line text-code-foreground">
                   &nbsp;.dark &#123;
                 </span>
-                {Object.entries(activeTheme?.cssVars.dark || {}).map(
+                {Object.entries(activeThemeHSL?.dark || {}).map(
                   ([key, value]) => (
                     <span
                       data-line
@@ -348,7 +373,7 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                       key={key}
                     >
                       &nbsp;&nbsp;&nbsp;--{key}:{" "}
-                      <ColorIndicator color={`hsl(${value})`} /> hsl({value});
+                      <ColorIndicator color={formatCssColor(value)} /> {value};
                     </span>
                   )
                 )}
@@ -403,16 +428,20 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--background:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.light["background"]})`}
+                    color={formatCssColor(
+                      activeThemeHSL?.light["background"] ?? ""
+                    )}
                   />{" "}
-                  {activeTheme?.cssVars.light["background"]};
+                  {activeThemeHSL?.light["background"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--foreground:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.light["foreground"]})`}
+                    color={formatCssColor(
+                      activeThemeHSL?.light["foreground"] ?? ""
+                    )}
                   />{" "}
-                  {activeTheme?.cssVars.light["foreground"]};
+                  {activeThemeHSL?.light["foreground"]};
                 </span>
                 {[
                   "card",
@@ -427,33 +456,19 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                     <span data-line className="line">
                       &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}:{" "}
                       <ColorIndicator
-                        color={`hsl(${
-                          activeTheme?.cssVars.light[
-                            prefix as keyof typeof activeTheme.cssVars.light
-                          ]
-                        })`}
+                        color={formatCssColor(activeThemeHSL?.light[prefix] ?? "")}
                       />{" "}
-                      {
-                        activeTheme?.cssVars.light[
-                          prefix as keyof typeof activeTheme.cssVars.light
-                        ]
-                      }
+                      {activeThemeHSL?.light[prefix]}
                       ;
                     </span>
                     <span data-line className="line">
                       &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}-foreground:{" "}
                       <ColorIndicator
-                        color={`hsl(${
-                          activeTheme?.cssVars.light[
-                            `${prefix}-foreground` as keyof typeof activeTheme.cssVars.light
-                          ]
-                        })`}
+                        color={formatCssColor(
+                          activeThemeHSL?.light[`${prefix}-foreground`] ?? ""
+                        )}
                       />{" "}
-                      {
-                        activeTheme?.cssVars.light[
-                          `${prefix}-foreground` as keyof typeof activeTheme.cssVars.light
-                        ]
-                      }
+                      {activeThemeHSL?.light[`${prefix}-foreground`]}
                       ;
                     </span>
                   </React.Fragment>
@@ -461,23 +476,23 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--border:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.light["border"]})`}
+                    color={formatCssColor(activeThemeHSL?.light["border"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.light["border"]};
+                  {activeThemeHSL?.light["border"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--input:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.light["input"]})`}
+                    color={formatCssColor(activeThemeHSL?.light["input"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.light["input"]};
+                  {activeThemeHSL?.light["input"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--ring:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.light["ring"]})`}
+                    color={formatCssColor(activeThemeHSL?.light["ring"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.light["ring"]};
+                  {activeThemeHSL?.light["ring"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--radius: 0.5rem;
@@ -488,18 +503,11 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                       <span data-line className="line">
                         &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}:{" "}
                         <ColorIndicator
-                          color={`hsl(${
-                            activeTheme?.cssVars.light[
-                              prefix as keyof typeof activeTheme.cssVars.light
-                            ]
-                          })`}
+                          color={formatCssColor(
+                            activeThemeHSL?.light[prefix] ?? ""
+                          )}
                         />{" "}
-                        {
-                          activeTheme?.cssVars.light[
-                            prefix as keyof typeof activeTheme.cssVars.light
-                          ]
-                        }
-                        ;
+                        {activeThemeHSL?.light[prefix]};
                       </span>
                     </React.Fragment>
                   )
@@ -516,16 +524,20 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--background:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.dark["background"]})`}
+                    color={formatCssColor(
+                      activeThemeHSL?.dark["background"] ?? ""
+                    )}
                   />{" "}
-                  {activeTheme?.cssVars.dark["background"]};
+                  {activeThemeHSL?.dark["background"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--foreground:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.dark["foreground"]})`}
+                    color={formatCssColor(
+                      activeThemeHSL?.dark["foreground"] ?? ""
+                    )}
                   />{" "}
-                  {activeTheme?.cssVars.dark["foreground"]};
+                  {activeThemeHSL?.dark["foreground"]};
                 </span>
                 {[
                   "card",
@@ -540,33 +552,19 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                     <span data-line className="line">
                       &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}:{" "}
                       <ColorIndicator
-                        color={`hsl(${
-                          activeTheme?.cssVars.dark[
-                            prefix as keyof typeof activeTheme.cssVars.dark
-                          ]
-                        })`}
+                        color={formatCssColor(activeThemeHSL?.dark[prefix] ?? "")}
                       />{" "}
-                      {
-                        activeTheme?.cssVars.dark[
-                          prefix as keyof typeof activeTheme.cssVars.dark
-                        ]
-                      }
+                      {activeThemeHSL?.dark[prefix]}
                       ;
                     </span>
                     <span data-line className="line">
                       &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}-foreground:{" "}
                       <ColorIndicator
-                        color={`hsl(${
-                          activeTheme?.cssVars.dark[
-                            `${prefix}-foreground` as keyof typeof activeTheme.cssVars.dark
-                          ]
-                        })`}
+                        color={formatCssColor(
+                          activeThemeHSL?.dark[`${prefix}-foreground`] ?? ""
+                        )}
                       />{" "}
-                      {
-                        activeTheme?.cssVars.dark[
-                          `${prefix}-foreground` as keyof typeof activeTheme.cssVars.dark
-                        ]
-                      }
+                      {activeThemeHSL?.dark[`${prefix}-foreground`]}
                       ;
                     </span>
                   </React.Fragment>
@@ -574,23 +572,23 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--border:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.dark["border"]})`}
+                    color={formatCssColor(activeThemeHSL?.dark["border"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.dark["border"]};
+                  {activeThemeHSL?.dark["border"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--input:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.dark["input"]})`}
+                    color={formatCssColor(activeThemeHSL?.dark["input"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.dark["input"]};
+                  {activeThemeHSL?.dark["input"]};
                 </span>
                 <span data-line className="line">
                   &nbsp;&nbsp;&nbsp;&nbsp;--ring:{" "}
                   <ColorIndicator
-                    color={`hsl(${activeTheme?.cssVars.dark["ring"]})`}
+                    color={formatCssColor(activeThemeHSL?.dark["ring"] ?? "")}
                   />{" "}
-                  {activeTheme?.cssVars.dark["ring"]};
+                  {activeThemeHSL?.dark["ring"]};
                 </span>
                 {["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"].map(
                   (prefix) => (
@@ -598,18 +596,11 @@ function CustomizerCode({ themeName }: { themeName: string }) {
                       <span data-line className="line">
                         &nbsp;&nbsp;&nbsp;&nbsp;--{prefix}:{" "}
                         <ColorIndicator
-                          color={`hsl(${
-                            activeTheme?.cssVars.dark[
-                              prefix as keyof typeof activeTheme.cssVars.dark
-                            ]
-                          })`}
+                          color={formatCssColor(
+                            activeThemeHSL?.dark[prefix] ?? ""
+                          )}
                         />{" "}
-                        {
-                          activeTheme?.cssVars.dark[
-                            prefix as keyof typeof activeTheme.cssVars.dark
-                          ]
-                        }
-                        ;
+                        {activeThemeHSL?.dark[prefix]};
                       </span>
                     </React.Fragment>
                   )
@@ -664,8 +655,19 @@ function getThemeCode(theme: BaseColor | undefined, radius: number) {
     return ""
   }
 
+  const colors = withAppThemeVars(theme.cssVars, {
+    destructiveForeground: {
+      light: {
+        "destructive-foreground": theme.cssVars.light["destructive-foreground"],
+      },
+      dark: {
+        "destructive-foreground": theme.cssVars.dark["destructive-foreground"],
+      },
+    },
+  })
+
   return template(BASE_STYLES_WITH_VARIABLES)({
-    colors: theme.cssVars,
+    colors,
     radius: radius.toString(),
   })
 }
@@ -675,16 +677,27 @@ function getThemeCodeHSLV4(theme: BaseColor | undefined, radius: number) {
     return ""
   }
 
+  const colors = withAppThemeVars(theme.cssVars, {
+    destructiveForeground: {
+      light: {
+        "destructive-foreground": theme.cssVars.light["destructive-foreground"],
+      },
+      dark: {
+        "destructive-foreground": theme.cssVars.dark["destructive-foreground"],
+      },
+    },
+  })
+
   const rootSection =
     ":root {\n  --radius: " +
     radius +
     "rem;\n" +
-    Object.entries(theme.cssVars.light)
-      .map((entry) => "  --" + entry[0] + ": hsl(" + entry[1] + ");")
+    Object.entries(colors.light)
+      .map((entry) => "  --" + entry[0] + ": " + formatCssColor(entry[1]) + ";")
       .join("\n") +
     "\n}\n\n.dark {\n" +
-    Object.entries(theme.cssVars.dark)
-      .map((entry) => "  --" + entry[0] + ": hsl(" + entry[1] + ");")
+    Object.entries(colors.dark)
+      .map((entry) => "  --" + entry[0] + ": " + formatCssColor(entry[1]) + ";")
       .join("\n") +
     "\n}\n"
 
@@ -719,6 +732,14 @@ const BASE_STYLES_WITH_VARIABLES = `
     --chart-3: <%- colors.light["chart-3"] %>;
     --chart-4: <%- colors.light["chart-4"] %>;
     --chart-5: <%- colors.light["chart-5"] %>;
+    --surface: <%- colors.light["surface"] %>;
+    --surface-foreground: <%- colors.light["surface-foreground"] %>;
+    --code: <%- colors.light["code"] %>;
+    --code-foreground: <%- colors.light["code-foreground"] %>;
+    --code-highlight: <%- colors.light["code-highlight"] %>;
+    --code-number: <%- colors.light["code-number"] %>;
+    --selection: <%- colors.light["selection"] %>;
+    --selection-foreground: <%- colors.light["selection-foreground"] %>;
   }
 
   .dark {
@@ -746,6 +767,14 @@ const BASE_STYLES_WITH_VARIABLES = `
     --chart-3: <%- colors.dark["chart-3"] %>;
     --chart-4: <%- colors.dark["chart-4"] %>;
     --chart-5: <%- colors.dark["chart-5"] %>;
+    --surface: <%- colors.dark["surface"] %>;
+    --surface-foreground: <%- colors.dark["surface-foreground"] %>;
+    --code: <%- colors.dark["code"] %>;
+    --code-foreground: <%- colors.dark["code-foreground"] %>;
+    --code-highlight: <%- colors.dark["code-highlight"] %>;
+    --code-number: <%- colors.dark["code-number"] %>;
+    --selection: <%- colors.dark["selection"] %>;
+    --selection-foreground: <%- colors.dark["selection-foreground"] %>;
   }
 }
 `

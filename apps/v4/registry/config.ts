@@ -10,6 +10,7 @@ import { BASES, type Base } from "@/registry/bases"
 import { fonts } from "@/registry/fonts"
 import { STYLES, type Style } from "@/registry/styles"
 import { THEMES, type Theme } from "@/registry/themes"
+import { withAppThemeVars } from "@/lib/theme-vars"
 
 const SHADCN_VERSION = "latest"
 
@@ -368,13 +369,18 @@ export function buildRegistryTheme(config: DesignSystemConfig) {
     }
   }
 
+  const normalizedVars = withAppThemeVars({
+    light: lightVars,
+    dark: darkVars,
+  })
+
   return {
     name: `${config.baseColor}-${config.theme}`,
     type: "registry:theme" as const,
     cssVars: {
       theme: Object.keys(themeVars).length > 0 ? themeVars : undefined,
-      light: lightVars,
-      dark: darkVars,
+      light: normalizedVars.light,
+      dark: normalizedVars.dark,
     },
   }
 }

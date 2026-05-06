@@ -17,6 +17,7 @@ import {
   fonts,
   type DesignSystemConfig,
 } from "@/registry/config"
+import { withAppThemeVars } from "@/lib/theme-vars"
 
 const { Index } = await import("@/registry/bases/__index__")
 
@@ -80,11 +81,16 @@ async function buildV0Payload(designSystemConfig: DesignSystemConfig) {
 }
 
 function buildGlobalsCss(registryBase: RegistryItem) {
-  const lightVars = Object.entries(registryBase.cssVars?.light ?? {})
+  const themeVars = withAppThemeVars({
+    light: (registryBase.cssVars?.light ?? {}) as Record<string, string>,
+    dark: (registryBase.cssVars?.dark ?? {}) as Record<string, string>,
+  })
+
+  const lightVars = Object.entries(themeVars.light)
     .map(([key, value]) => `  --${key}: ${value};`)
     .join("\n")
 
-  const darkVars = Object.entries(registryBase.cssVars?.dark ?? {})
+  const darkVars = Object.entries(themeVars.dark)
     .map(([key, value]) => `  --${key}: ${value};`)
     .join("\n")
 
@@ -129,6 +135,14 @@ function buildGlobalsCss(registryBase: RegistryItem) {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+  --color-code-number: var(--code-number);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -149,6 +163,9 @@ function buildGlobalsCss(registryBase: RegistryItem) {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  ::selection {
+    @apply bg-selection text-selection-foreground;
   }
   body {
     @apply bg-background text-foreground;
