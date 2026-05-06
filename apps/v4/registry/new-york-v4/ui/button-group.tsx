@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
+import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { Separator } from "@/registry/new-york-v4/ui/separator"
@@ -26,12 +27,30 @@ function ButtonGroup({
   orientation,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof buttonGroupVariants>) {
+  const [gap, setGap] = useState(0)
+  const [opacity, setOpacity] = useState(1)
+
+  // geneditor-listener-start
+  useEffect(() => {
+    const el = document.querySelector('[data-config-id="ButtonGroup-div-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.gap !== undefined) setGap(d.gap)
+      if (d.opacity !== undefined) setOpacity(d.opacity)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <div
       role="group"
       data-slot="button-group"
       data-orientation={orientation}
       className={cn(buttonGroupVariants({ orientation }), className)}
+      style={{ gap, opacity }}
       {...props}
     />
   )
@@ -81,3 +100,5 @@ export {
   ButtonGroupText,
   buttonGroupVariants,
 }
+
+
