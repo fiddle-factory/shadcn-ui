@@ -50,15 +50,33 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button"
 
+  const [currentVariant, setCurrentVariant] = React.useState<string>(variant ?? "default")
+  const [currentSize, setCurrentSize] = React.useState<string>(size ?? "default")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.currentVariant !== undefined) setCurrentVariant(d.currentVariant)
+      if (d.currentSize !== undefined) setCurrentSize(d.currentSize)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <Comp
       data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-variant={currentVariant}
+      data-size={currentSize}
+      className={cn(buttonVariants({ variant: currentVariant as any, size: currentSize as any, className }))}
       {...props}
     />
   )
 }
 
 export { Button, buttonVariants }
+

@@ -13,7 +13,7 @@ export default meta
 type Story = StoryObj<typeof Button>
 
 export const Default: Story = {
-  render: () => <Button>Default</Button>,
+  render: () => <Button>yay</Button>,
 }
 
 export const Destructive: Story = {
@@ -58,3 +58,4 @@ export const Loading: Story = {
     </Button>
   ),
 }
+
