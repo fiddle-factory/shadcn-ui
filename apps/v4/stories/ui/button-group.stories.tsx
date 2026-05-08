@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react"
+
 import type { Meta, StoryObj } from "@storybook/react"
 import { Bold, Italic, Underline } from "lucide-react"
 
@@ -14,13 +16,36 @@ export default meta
 type Story = StoryObj<typeof ButtonGroup>
 
 export const Default: Story = {
-  render: () => (
-    <ButtonGroup>
-      <Button variant="outline">First</Button>
-      <Button variant="outline">Second</Button>
-      <Button variant="outline">Third</Button>
-    </ButtonGroup>
-  ),
+  render: () => {
+    const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal")
+    const [label1, setLabel1] = useState("1")
+    const [label2, setLabel2] = useState("2")
+    const [label3, setLabel3] = useState("3")
+
+    // geneditor-listener-start
+    useEffect(() => {
+      const el = document.querySelector('[data-config-id="ButtonGroup-div-0"]')
+      if (!el) return
+      const handler = (e: Event) => {
+        const d = (e as CustomEvent).detail
+        if (d.orientation !== undefined) setOrientation(d.orientation)
+        if (d.label1 !== undefined) setLabel1(d.label1)
+        if (d.label2 !== undefined) setLabel2(d.label2)
+        if (d.label3 !== undefined) setLabel3(d.label3)
+      }
+      el.addEventListener("animation:update", handler)
+      return () => el.removeEventListener("animation:update", handler)
+    }, [])
+    // geneditor-listener-end
+
+    return (
+      <ButtonGroup data-config-id="ButtonGroup-div-0" orientation={orientation}>
+        <Button variant="outline">{label1}</Button>
+        <Button variant="outline">{label2}</Button>
+        <Button variant="outline">{label3}</Button>
+      </ButtonGroup>
+    )
+  },
 }
 
 export const Vertical: Story = {
@@ -48,3 +73,6 @@ export const WithIcons: Story = {
     </ButtonGroup>
   ),
 }
+
+
+
