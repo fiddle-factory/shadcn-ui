@@ -15,7 +15,7 @@ const buttonVariants = cva(
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "hover:bg-destructive/90",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
@@ -49,6 +49,22 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot.Root : "button"
+  const [bgColor, setBgColor] = React.useState("#dc2626")
+  const [textColor, setTextColor] = React.useState("#ffffff")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.bgColor !== undefined) setBgColor(d.bgColor)
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
 
   return (
     <Comp
@@ -56,9 +72,13 @@ function Button({
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
+      style={variant === "secondary" ? { backgroundColor: bgColor, color: textColor } : undefined}
       {...props}
     />
   )
 }
 
 export { Button, buttonVariants }
+
+
+
