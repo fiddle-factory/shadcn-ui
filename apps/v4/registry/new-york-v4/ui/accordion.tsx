@@ -9,7 +9,36 @@ import { cn } from "@/lib/utils"
 function Accordion({
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+  const [triggerPadding, setTriggerPadding] = React.useState(16)
+  const [fontSize, setFontSize] = React.useState(14)
+  const [chevronDuration, setChevronDuration] = React.useState(200)
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Accordion-AccordionPrimitive.Root-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.triggerPadding !== undefined) setTriggerPadding(d.triggerPadding)
+      if (d.fontSize !== undefined) setFontSize(d.fontSize)
+      if (d.chevronDuration !== undefined) setChevronDuration(d.chevronDuration)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
+  return (
+    <AccordionPrimitive.Root
+      data-slot="accordion"
+      style={{
+        ['--accordion-trigger-py' as string]: `${triggerPadding}px`,
+        ['--accordion-font-size' as string]: `${fontSize}px`,
+        ['--accordion-chevron-duration' as string]: `${chevronDuration}ms`,
+      }}
+      {...props}
+    />
+  )
 }
 
 function AccordionItem({
@@ -35,13 +64,14 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
           className
         )}
+        style={{ paddingTop: 'var(--accordion-trigger-py)', paddingBottom: 'var(--accordion-trigger-py)', fontSize: 'var(--accordion-font-size)' }}
         {...props}
       >
         {children}
-        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform" style={{ transitionDuration: 'var(--accordion-chevron-duration)' }} />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )
@@ -64,3 +94,5 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+
