@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { BookOpenIcon, BlocksIcon, FileTextIcon } from "lucide-react"
 
 import {
   NavigationMenu,
@@ -24,7 +25,7 @@ export const Default: Story = {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
+          <NavigationMenuTrigger icon={<BookOpenIcon />}>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -84,7 +85,7 @@ export const Default: Story = {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger icon={<BlocksIcon />}>Components</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {[
@@ -135,7 +136,11 @@ export const Default: Story = {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()} href="#">
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
+            href="#"
+          >
+            <FileTextIcon className="size-4" />
             Documentation
           </NavigationMenuLink>
         </NavigationMenuItem>
@@ -143,3 +148,7 @@ export const Default: Story = {
     </NavigationMenu>
   ),
 }
+
+
+
+

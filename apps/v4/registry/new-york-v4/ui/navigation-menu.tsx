@@ -5,6 +5,25 @@ import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+// ─── Dock magnification context ───────────────────────────────────────────────
+interface DockContextValue {
+  hoveredIndex: number | null
+  onHover: (i: number | null) => void
+  magnifyScale: number
+  neighborScale: number
+  farScale: number
+  transitionDuration: number
+}
+
+const DockContext = React.createContext<DockContextValue>({
+  hoveredIndex: null,
+  onHover: () => {},
+  magnifyScale: 1.28,
+  neighborScale: 1.14,
+  farScale: 1.06,
+  transitionDuration: 500,
+})
+
 function NavigationMenu({
   className,
   children,
@@ -31,53 +50,150 @@ function NavigationMenu({
 
 function NavigationMenuList({
   className,
+  children,
+  magnifyScale: magnifyScaleProp = 1.28,
+  neighborScale: neighborScaleProp = 1.14,
+  farScale: farScaleProp = 1.06,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.List>) {
+}: React.ComponentProps<typeof NavigationMenuPrimitive.List> & {
+  magnifyScale?: number
+  neighborScale?: number
+  farScale?: number
+}) {
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const [magnifyScale, setMagnifyScale] = React.useState(magnifyScaleProp)
+  const [neighborScale, setNeighborScale] = React.useState(neighborScaleProp)
+  const [farScale, setFarScale] = React.useState(farScaleProp)
+  const [transitionDuration, setTransitionDuration] = React.useState(500)
+  const counterRef = React.useRef(0)
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="NavigationMenu-NavigationMenuPrimitive.Root-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.magnifyScale !== undefined) setMagnifyScale(d.magnifyScale)
+      if (d.neighborScale !== undefined) setNeighborScale(d.neighborScale)
+      if (d.farScale !== undefined) setFarScale(d.farScale)
+      if (d.transitionDuration !== undefined) setTransitionDuration(d.transitionDuration)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
+  // Assign sequential dock indices to direct children
+  counterRef.current = 0
+  const indexedChildren = React.Children.map(children, (child) => {
+    if (!React.isValidElement(child)) return child
+    const idx = counterRef.current++
+    return React.cloneElement(child as React.ReactElement<{ _dockIndex?: number }>, {
+      _dockIndex: idx,
+    })
+  })
+
   return (
-    <NavigationMenuPrimitive.List
-      data-slot="navigation-menu-list"
-      className={cn(
-        "group flex flex-1 list-none items-center justify-center gap-1",
-        className
-      )}
-      {...props}
-    />
+    <DockContext.Provider value={{ hoveredIndex, onHover: setHoveredIndex, magnifyScale, neighborScale, farScale, transitionDuration }}>
+      <NavigationMenuPrimitive.List
+        data-slot="navigation-menu-list"
+        className={cn(
+          "group flex flex-1 list-none items-end justify-center gap-0.5",
+          "rounded-2xl border border-border/50 bg-background/80 px-2 py-1.5 shadow-lg backdrop-blur-md",
+          className
+        )}
+        {...props}
+      >
+        {indexedChildren}
+      </NavigationMenuPrimitive.List>
+    </DockContext.Provider>
   )
 }
 
 function NavigationMenuItem({
   className,
+  _dockIndex,
+  onMouseEnter,
+  onMouseLeave,
+  style,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Item>) {
+}: React.ComponentProps<typeof NavigationMenuPrimitive.Item> & {
+  _dockIndex?: number
+}) {
+  const { hoveredIndex, onHover, magnifyScale, neighborScale, farScale, transitionDuration } =
+    React.useContext(DockContext)
+
+  const scale = React.useMemo(() => {
+    if (hoveredIndex === null || _dockIndex === undefined) return 1
+    const dist = Math.abs(hoveredIndex - _dockIndex)
+    if (dist === 0) return magnifyScale
+    if (dist === 1) return neighborScale
+    if (dist === 2) return farScale
+    return 1
+  }, [hoveredIndex, _dockIndex, magnifyScale, neighborScale, farScale])
+
   return (
     <NavigationMenuPrimitive.Item
       data-slot="navigation-menu-item"
       className={cn("relative", className)}
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: "bottom center",
+        // ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1) — matches the CodePen exactly
+        transition: `transform ${transitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+        zIndex: scale > 1 ? 10 : undefined,
+        willChange: "transform",
+        ...style,
+      }}
+      onMouseEnter={(e) => {
+        if (_dockIndex !== undefined) onHover(_dockIndex)
+        onMouseEnter?.(e)
+      }}
+      onMouseLeave={(e) => {
+        onHover(null)
+        onMouseLeave?.(e)
+      }}
       {...props}
     />
   )
 }
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1"
+  "group inline-flex h-9 w-max items-center justify-center gap-2 rounded-xl bg-transparent px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,background-color,box-shadow] duration-200 focus-visible:ring-[3px] focus-visible:outline-1"
 )
 
 function NavigationMenuTrigger({
   className,
   children,
+  icon,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Trigger>) {
+}: React.ComponentProps<typeof NavigationMenuPrimitive.Trigger> & {
+  /** Optional icon to display above the label (e.g. a Lucide icon element) */
+  icon?: React.ReactNode
+}) {
   return (
     <NavigationMenuPrimitive.Trigger
       data-slot="navigation-menu-trigger"
-      className={cn(navigationMenuTriggerStyle(), "group", className)}
+      className={cn(
+        navigationMenuTriggerStyle(),
+        "group",
+        icon && "h-auto flex-col gap-1.5 pb-2 pt-2.5",
+        className
+      )}
       {...props}
     >
-      {children}{" "}
-      <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
-        aria-hidden="true"
-      />
+      {icon && (
+        <span className="flex size-8 items-center justify-center rounded-xl bg-accent/50 text-accent-foreground transition-colors duration-200 group-hover:bg-accent group-data-[state=open]:bg-accent [&_svg]:size-4">
+          {icon}
+        </span>
+      )}
+      <span className="flex items-center gap-0.5">
+        {children}
+        <ChevronDownIcon
+          className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
+          aria-hidden="true"
+        />
+      </span>
     </NavigationMenuPrimitive.Trigger>
   )
 }
@@ -166,3 +282,9 @@ export {
   NavigationMenuViewport,
   navigationMenuTriggerStyle,
 }
+
+
+
+
+
+
