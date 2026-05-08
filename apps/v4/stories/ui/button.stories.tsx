@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { Loader2, Mail } from "lucide-react"
+import * as React from "react"
 
 import { Button } from "@/registry/new-york-v4/ui/button"
 
@@ -12,8 +13,40 @@ const meta: Meta<typeof Button> = {
 export default meta
 type Story = StoryObj<typeof Button>
 
+function DefaultButton() {
+  const [buttonSize, setButtonSize] = React.useState(40)
+  const [borderRadius, setBorderRadius] = React.useState(0)
+  const [variant, setVariant] = React.useState("default")
+  const [label, setLabel] = React.useState("Default")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.buttonSize !== undefined) setButtonSize(d.buttonSize)
+      if (d.borderRadius !== undefined) setBorderRadius(d.borderRadius)
+      if (d.variant !== undefined) setVariant(d.variant)
+      if (d.label !== undefined) setLabel(d.label)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
+  return (
+    <Button
+      variant={variant as any}
+      style={{ width: buttonSize, height: buttonSize, borderRadius }}
+    >
+      {label}
+    </Button>
+  )
+}
+
 export const Default: Story = {
-  render: () => <Button>Default</Button>,
+  render: () => <DefaultButton />,
 }
 
 export const Destructive: Story = {
@@ -58,3 +91,5 @@ export const Loading: Story = {
     </Button>
   ),
 }
+
+
