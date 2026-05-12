@@ -26,9 +26,9 @@ export const Default: Story = {
 export const Vertical: Story = {
   render: () => (
     <ButtonGroup orientation="vertical">
-      <Button variant="outline">Top</Button>
-      <Button variant="outline">Middle</Button>
-      <Button variant="outline">Bottom</Button>
+      <Button variant="outline">1</Button>
+      <Button variant="outline">2</Button>
+      <Button variant="outline">3</Button>
     </ButtonGroup>
   ),
 }
@@ -48,3 +48,4 @@ export const WithIcons: Story = {
     </ButtonGroup>
   ),
 }
+
