@@ -8,7 +8,7 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
+        default: "text-card-foreground",
         destructive:
           "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
       },
@@ -22,13 +22,31 @@ const alertVariants = cva(
 function Alert({
   className,
   variant,
+  style,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+  const [backgroundColor, setBackgroundColor] = React.useState("#fefce8")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Alert-div-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.backgroundColor !== undefined) setBackgroundColor(d.backgroundColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <div
+      data-config-id="Alert-div-0"
       data-slot="alert"
       role="alert"
       className={cn(alertVariants({ variant }), className)}
+      style={variant === "destructive" ? style : { backgroundColor, ...style }}
       {...props}
     />
   )
@@ -64,3 +82,5 @@ function AlertDescription({
 }
 
 export { Alert, AlertTitle, AlertDescription }
+
+
