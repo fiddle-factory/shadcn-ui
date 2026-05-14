@@ -30,19 +30,46 @@ function Badge({
   className,
   variant = "default",
   asChild = false,
+  children,
   ...props
 }: React.ComponentProps<"span"> &
   VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "span"
+  const [iconRadius, setIconRadius] = React.useState(3)
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Badge-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.iconRadius !== undefined) setIconRadius(d.iconRadius)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
 
   return (
     <Comp
+      data-config-id="Badge-Comp-0"
       data-slot="badge"
       data-variant={variant}
       className={cn(badgeVariants({ variant }), className)}
       {...props}
-    />
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 12 12"
+        fill="currentColor"
+      >
+        <circle cx="6" cy="6" r={iconRadius} />
+      </svg>
+      {children}
+    </Comp>
   )
 }
 
 export { Badge, badgeVariants }
+
+
