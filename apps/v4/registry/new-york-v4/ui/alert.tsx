@@ -8,7 +8,8 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
+        default:
+          "*:data-[slot=alert-description]:text-[color:var(--alert-description-color)]",
         destructive:
           "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
       },
@@ -22,13 +23,50 @@ const alertVariants = cva(
 function Alert({
   className,
   variant,
+  style,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+  const [backgroundColor, setBackgroundColor] = React.useState("#ef4444")
+  const [backgroundOpacity, setBackgroundOpacity] = React.useState(0.1)
+  const [borderColor, setBorderColor] = React.useState("#ef4444")
+  const [borderOpacity, setBorderOpacity] = React.useState(0.5)
+  const [textColor, setTextColor] = React.useState("#ef4444")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Alert-div-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.backgroundColor !== undefined) setBackgroundColor(d.backgroundColor)
+      if (d.backgroundOpacity !== undefined) setBackgroundOpacity(d.backgroundOpacity)
+      if (d.borderColor !== undefined) setBorderColor(d.borderColor)
+      if (d.borderOpacity !== undefined) setBorderOpacity(d.borderOpacity)
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
+  const alertStyle =
+    variant === "destructive"
+      ? style
+      : ({
+          backgroundColor: `color-mix(in oklab, ${backgroundColor} ${backgroundOpacity * 100}%, transparent)`,
+          borderColor: `color-mix(in oklab, ${borderColor} ${borderOpacity * 100}%, transparent)`,
+          color: textColor,
+          "--alert-description-color": `color-mix(in oklab, ${textColor} 90%, transparent)`,
+          ...style,
+        } as React.CSSProperties)
+
   return (
     <div
+      data-config-id="Alert-div-0"
       data-slot="alert"
       role="alert"
       className={cn(alertVariants({ variant }), className)}
+      style={alertStyle}
       {...props}
     />
   )
@@ -64,3 +102,5 @@ function AlertDescription({
 }
 
 export { Alert, AlertTitle, AlertDescription }
+
+
