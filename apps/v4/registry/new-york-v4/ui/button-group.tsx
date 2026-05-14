@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -26,13 +27,36 @@ function ButtonGroup({
   orientation,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof buttonGroupVariants>) {
+  const [controlledOrientation, setControlledOrientation] = useState<
+    "horizontal" | "vertical"
+  >(orientation ?? "horizontal")
+
+  // geneditor-listener-start
+  useEffect(() => {
+    const el = document.querySelector('[data-config-id="ButtonGroup-div-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.controlledOrientation !== undefined) {
+        setControlledOrientation(d.controlledOrientation)
+      }
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <div
       role="group"
       data-slot="button-group"
-      data-orientation={orientation}
-      className={cn(buttonGroupVariants({ orientation }), className)}
+      data-orientation={controlledOrientation}
+      className={cn(
+        buttonGroupVariants({ orientation: controlledOrientation }),
+        className
+      )}
       {...props}
+      data-config-id="ButtonGroup-div-0"
     />
   )
 }
@@ -81,3 +105,4 @@ export {
   ButtonGroupText,
   buttonGroupVariants,
 }
+
