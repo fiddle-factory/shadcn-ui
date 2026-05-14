@@ -151,8 +151,40 @@ function AlertDialogAction({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
   Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  const [backgroundColor, setBackgroundColor] = React.useState("#2563eb")
+  const [hoverBackgroundColor, setHoverBackgroundColor] = React.useState("#1d4ed8")
+  const [textColor, setTextColor] = React.useState("#ffffff")
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="Button-Comp-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.backgroundColor !== undefined) setBackgroundColor(d.backgroundColor)
+      if (d.hoverBackgroundColor !== undefined) setHoverBackgroundColor(d.hoverBackgroundColor)
+      if (d.textColor !== undefined) setTextColor(d.textColor)
+    }
+    el.addEventListener("animation:update", handler)
+    return () => el.removeEventListener("animation:update", handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
-    <Button variant={variant} size={size} asChild>
+    <Button
+      variant={variant}
+      size={size}
+      data-config-id="Button-Comp-0"
+      className="bg-[var(--alert-dialog-action-background-color)] text-[var(--alert-dialog-action-text-color)] hover:bg-[var(--alert-dialog-action-hover-background-color)] focus-visible:ring-blue-600/20 dark:bg-[var(--alert-dialog-action-background-color)] dark:hover:bg-[var(--alert-dialog-action-hover-background-color)] dark:focus-visible:ring-blue-600/40"
+      style={
+        {
+          "--alert-dialog-action-background-color": backgroundColor,
+          "--alert-dialog-action-hover-background-color": hoverBackgroundColor,
+          "--alert-dialog-action-text-color": textColor,
+        } as React.CSSProperties
+      }
+      asChild
+    >
       <AlertDialogPrimitive.Action
         data-slot="alert-dialog-action"
         className={cn(className)}
@@ -194,3 +226,5 @@ export {
   AlertDialogTitle,
   AlertDialogTrigger,
 }
+
+
