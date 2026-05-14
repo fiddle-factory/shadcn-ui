@@ -8,9 +8,9 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-card-foreground",
+        default: "",
         destructive:
-          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
+          "text-destructive [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
       },
     },
     defaultVariants: {
@@ -25,15 +25,19 @@ function Alert({
   style,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
-  const [backgroundColor, setBackgroundColor] = React.useState("#fefce8")
+  const [backgroundClass, setBackgroundClass] = React.useState("bg-card")
+  const [borderClass, setBorderClass] = React.useState("border-border")
+  const [textClass, setTextClass] = React.useState("text-card-foreground")
 
   // geneditor-listener-start
   React.useEffect(() => {
-    const el = document.querySelector('[data-config-id="Alert-div-0"]')
+    const el = document.querySelector('[data-config-id="alert.stories-Alert-2"]')
     if (!el) return
     const handler = (e: Event) => {
       const d = (e as CustomEvent).detail
-      if (d.backgroundColor !== undefined) setBackgroundColor(d.backgroundColor)
+      if (d.backgroundClass !== undefined) setBackgroundClass(d.backgroundClass)
+      if (d.borderClass !== undefined) setBorderClass(d.borderClass)
+      if (d.textClass !== undefined) setTextClass(d.textClass)
     }
     el.addEventListener('animation:update', handler)
     return () => el.removeEventListener('animation:update', handler)
@@ -42,11 +46,11 @@ function Alert({
 
   return (
     <div
-      data-config-id="Alert-div-0"
+      data-config-id="alert.stories-Alert-2"
       data-slot="alert"
       role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      style={variant === "destructive" ? style : { backgroundColor, ...style }}
+      className={cn(alertVariants({ variant }), backgroundClass, borderClass, textClass, className)}
+      style={style}
       {...props}
     />
   )
@@ -82,5 +86,7 @@ function AlertDescription({
 }
 
 export { Alert, AlertTitle, AlertDescription }
+
+
 
 
