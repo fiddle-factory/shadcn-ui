@@ -16,9 +16,9 @@ type Story = StoryObj<typeof ButtonGroup>
 export const Default: Story = {
   render: () => (
     <ButtonGroup>
-      <Button variant="outline">First</Button>
-      <Button variant="outline">Second</Button>
-      <Button variant="outline">Third</Button>
+      <Button variant="outline">1</Button>
+      <Button variant="outline">2</Button>
+      <Button variant="outline">3</Button>
     </ButtonGroup>
   ),
 }
@@ -48,3 +48,4 @@ export const WithIcons: Story = {
     </ButtonGroup>
   ),
 }
+
