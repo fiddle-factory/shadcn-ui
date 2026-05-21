@@ -14,9 +14,13 @@ function ContextMenu({
 
 function ContextMenuTrigger({
   onClick,
+  style,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
   const ref = React.useRef<HTMLSpanElement>(null)
+  const [height, setHeight] = React.useState(150)
+  const [width, setWidth] = React.useState(300)
+  const [borderColor, setBorderColor] = React.useState('#e2e8f0')
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLSpanElement>) => {
@@ -34,12 +38,28 @@ function ContextMenuTrigger({
     [onClick]
   )
 
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="ContextMenuTrigger-ContextMenuPrimitive.Trigger-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.height !== undefined) setHeight(d.height)
+      if (d.width !== undefined) setWidth(d.width)
+      if (d.borderColor !== undefined) setBorderColor(d.borderColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
     <ContextMenuPrimitive.Trigger
       ref={ref}
       data-slot="context-menu-trigger"
       onClick={handleClick}
       {...props}
+      style={{ height, width, borderColor, ...style }}
     />
   )
 }
@@ -274,4 +294,5 @@ export {
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
 }
+
 
