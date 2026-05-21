@@ -13,10 +13,79 @@ function ContextMenu({
 }
 
 function ContextMenuTrigger({
+  className,
+  style,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
+  const [hovered, setHovered] = React.useState(false)
+  const [hoverScale, setHoverScale] = React.useState(1.03)
+  const [hoverDuration, setHoverDuration] = React.useState(200)
+  const [fadeInDuration, setFadeInDuration] = React.useState(320)
+  const [pulseDuration, setPulseDuration] = React.useState(2800)
+  const [pulseColor, setPulseColor] = React.useState("#000000")
+
+  const hexToRgb = (hex: string) => {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `${r},${g},${b}`
+  }
+
+  const rgb = hexToRgb(pulseColor)
+
+  const keyframes = `
+@keyframes cmtFadeSlideIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+@keyframes cmtPulse {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(${rgb},0.08); }
+  50%       { box-shadow: 0 0 0 4px rgba(${rgb},0.06); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="context-menu-trigger"][data-animate="true"] {
+    animation: cmtFadeSlideIn ${fadeInDuration}ms cubic-bezier(0.22, 1, 0.36, 1) both,
+               cmtPulse ${pulseDuration}ms ease-in-out 600ms infinite;
+  }
+}
+`
+
+  // geneditor-listener-start
+  React.useEffect(() => {
+    const el = document.querySelector('[data-config-id="ContextMenuTrigger-ContextMenuPrimitive.Trigger-0"]')
+    if (!el) return
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail
+      if (d.hoverScale !== undefined) setHoverScale(d.hoverScale)
+      if (d.hoverDuration !== undefined) setHoverDuration(d.hoverDuration)
+      if (d.fadeInDuration !== undefined) setFadeInDuration(d.fadeInDuration)
+      if (d.pulseDuration !== undefined) setPulseDuration(d.pulseDuration)
+      if (d.pulseColor !== undefined) setPulseColor(d.pulseColor)
+    }
+    el.addEventListener('animation:update', handler)
+    return () => el.removeEventListener('animation:update', handler)
+  }, [])
+  // geneditor-listener-end
+
   return (
-    <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...props} />
+    <>
+      <style>{keyframes}</style>
+      <ContextMenuPrimitive.Trigger
+        data-slot="context-menu-trigger"
+        data-animate="true"
+        data-config-id="ContextMenuTrigger-ContextMenuPrimitive.Trigger-0"
+        className={className}
+        style={{
+          transition: `transform ${hoverDuration}ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow ${hoverDuration}ms cubic-bezier(0.22, 1, 0.36, 1), border-color ${hoverDuration}ms ease`,
+          transform: hovered ? `scale(${hoverScale})` : "scale(1)",
+          borderColor: hovered ? "hsl(var(--foreground) / 0.4)" : undefined,
+          ...style,
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        {...props}
+      />
+    </>
   )
 }
 
@@ -250,3 +319,5 @@ export {
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
 }
+
+
