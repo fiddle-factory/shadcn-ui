@@ -13,10 +13,34 @@ function ContextMenu({
 }
 
 function ContextMenuTrigger({
+  onClick,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
+  const ref = React.useRef<HTMLSpanElement>(null)
+
+  const handleClick = React.useCallback(
+    (e: React.MouseEvent<HTMLSpanElement>) => {
+      onClick?.(e)
+      if (e.defaultPrevented) return
+      // Simulate a contextmenu event at the click coordinates so Radix opens the menu
+      const contextEvent = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      })
+      e.currentTarget.dispatchEvent(contextEvent)
+    },
+    [onClick]
+  )
+
   return (
-    <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...props} />
+    <ContextMenuPrimitive.Trigger
+      ref={ref}
+      data-slot="context-menu-trigger"
+      onClick={handleClick}
+      {...props}
+    />
   )
 }
 
@@ -250,3 +274,4 @@ export {
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
 }
+
